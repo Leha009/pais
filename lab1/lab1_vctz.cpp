@@ -1,7 +1,6 @@
 #include <iostream>
 #include <ctime>
 #include <chrono>
-#include <omp.h>
 
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)
@@ -25,11 +24,26 @@ int randomInt(int left, int right)
     return rand() % (right - left + 1) + left;
 }
 
+void output_matrix(double** matrix, int rows, int columns)
+{
+    for(int i = 0; i < rows; ++i)
+    {
+        for(int j = 0; j < columns; ++j)
+        {
+            std::cout << matrix[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
+
 double** solveGauss(double** matrix, int rows, int columns);
 void sub_vector_from_vector2(double* vector1, double* vector2, int vectorSize, double multiplyBy);
+void swap_matrix_rows(double** matrix, int row1, int row2);
 
 int main()
 {
+    //std::srand(time(NULL));
     std::srand(61771);
     double** fMatrix = new double*[ROWS_NUM];
     if(fMatrix == NULL)
@@ -56,7 +70,6 @@ int main()
     for(int i = 0; i < ROWS_NUM; ++i)
         for(int j = 0; j < COLUMNS_NUM; ++j)
             fMatrix[i][j] = (double)randomInt(RAND_LEFT, RAND_RIGHT);
-
     //=========================== SOLVE SYSTEM ==========================//
     for(int i = 0; i < WARMUP_NUM; ++i)
         solveGauss(fMatrix, ROWS_NUM, COLUMNS_NUM);
@@ -96,10 +109,33 @@ double** solveGauss(double** matrix, int rows, int columns)
             solution[i][j] = matrix[i][j];
     }
 
-    for(int i = 0; i < rows && i < columns-1; ++i) // проходим сверху вниз, слева направо
+    bool firstZero;
+    int row = 0, column = 0;
+    while(row < rows-1 && column < columns-1)
     {
-        for(int j = i+1; j < rows; ++j) // проходим по всем строкам ниже
-            sub_vector_from_vector2(solution[j], solution[i], columns, (solution[j][i]/solution[i][i]));
+        firstZero = false;
+        if(solution[row][column] == 0.0) // если на диагонали ноль - надо менять
+        //if(unlikely(solution[row][column] == 0.0)) // если на диагонали ноль - надо менять
+        {
+            firstZero = true;
+            for(int j = row+1; firstZero && j < rows; ++j)
+                if(solution[j][column] != 0.0)
+                {
+                    swap_matrix_rows(solution, row, j);
+                    firstZero = false;
+                }
+
+            if(firstZero)
+            //if(unlikely(firstZero))
+            {
+                ++column;
+                continue;
+            }
+        }
+
+        for(int j = row+1; j < rows; ++j) // проходим по всем строкам ниже
+            sub_vector_from_vector2(solution[j], solution[row], columns, (solution[j][column]/solution[row][column]));
+        ++row;
     }
     return solution;
 }
@@ -109,7 +145,10 @@ double** solveGauss(double** matrix, int rows, int columns)
  */
 void sub_vector_from_vector2(double* vector1, double* vector2, int vectorSize, double multiplyBy)
 {
-    int i;
+    #pragma omp simd
+    for(int i = 0; i < vectorSize; ++i)
+    vector1[i] = vector1[i] - vector2[i] * multiplyBy;
+    /*int i;
     #pragma omp simd
     for(i = 0; i < vectorSize-8; i += 8)
     {
@@ -123,5 +162,12 @@ void sub_vector_from_vector2(double* vector1, double* vector2, int vectorSize, d
         vector1[i+7] = vector1[i+7] - vector2[i+7] * multiplyBy;
     }
     for(;i < vectorSize; ++i)
-        vector1[i] = vector1[i] - vector2[i] * multiplyBy;
+        vector1[i] = vector1[i] - vector2[i] * multiplyBy;*/
+}
+
+void swap_matrix_rows(double** matrix, int row1, int row2)
+{
+    double* temp = matrix[row2];
+    matrix[row2] = matrix[row1];
+    matrix[row1] = temp;
 }

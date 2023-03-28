@@ -24,6 +24,7 @@ int randomInt(int left, int right)
 
 double** solveGauss(double** matrix, int rows, int columns);
 void sub_vector_from_vector2(double* vector1, double* vector2, int vectorSize, double multiplyBy);
+void swap_matrix_rows(double** matrix, int row1, int row2);
 
 int main()
 {
@@ -94,15 +95,36 @@ double** solveGauss(double** matrix, int rows, int columns)
             solution[i][j] = matrix[i][j];
     }
 
-    for(int i = 0; i < rows && i < columns-1; ++i) // проходим сверху вниз, слева направо
+    bool firstZero;
+    int row = 0, column = 0;
+    while(row < rows-1 && column < columns-1)
     {
-        #pragma omp parallel for num_threads(THREAD_NUM)
-        for(int j = i+1; j < rows; ++j) // проходим по всем строкам ниже
+        firstZero = false;
+        if(unlikely(solution[row][column] == 0.0)) // если на диагонали ноль - надо менять
         {
-            double *irow = solution[i],
-                   *jrow = solution[j];
-            double multiplyBy = (jrow[i]/irow[i]);
+            firstZero = true;
+            for(int j = row+1; firstZero && j < rows; ++j)
+                if(solution[j][column] != 0.0)
+                {
+                    double* temp = matrix[j];
+                    matrix[j] = matrix[row];
+                    matrix[row] = temp;
+                    firstZero = false;
+                }
 
+            if(unlikely(firstZero))
+            {
+                ++column;
+                continue;
+            }
+        }
+
+        #pragma omp parallel for num_threads(THREAD_NUM)
+        for(int j = row+1; j < rows; ++j) // проходим по всем строкам ниже
+        {
+            double *irow = solution[row],
+                   *jrow = solution[j];
+            double multiplyBy = (jrow[column]/irow[column]);
             int i;
             for(i = 0; i < columns-8; i += 8)
             {
@@ -118,6 +140,7 @@ double** solveGauss(double** matrix, int rows, int columns)
             for(;i < columns; ++i)
                 jrow[i] -= irow[i] * multiplyBy;
         }
+        ++row;
     }
     return solution;
 }
@@ -143,4 +166,11 @@ void sub_vector_from_vector2(double* vector1, double* vector2, int vectorSize, d
     }
     for(;i < vectorSize; ++i)
         vector1[i] -= vector2[i] * multiplyBy;
+}
+
+void swap_matrix_rows(double** matrix, int row1, int row2)
+{
+    double* temp = matrix[row2];
+    matrix[row2] = matrix[row1];
+    matrix[row1] = temp;
 }
