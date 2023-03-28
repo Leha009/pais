@@ -2,6 +2,7 @@
 #include <ctime>
 #include <chrono>
 #include <omp.h>
+#include <xmmintrin.h>
 
 #define THREAD_NUM 12
 
@@ -99,24 +100,23 @@ double** solveGauss(double** matrix, int rows, int columns)
         #pragma omp parallel for num_threads(THREAD_NUM)
         for(int j = i+1; j < rows; ++j) // проходим по всем строкам ниже
         {
-            double *irow = solution[i],
-                   *jrow = solution[j];
-            double multiplyBy = (jrow[i]/irow[i]);
-
+            double multiplyBy = solution[j][i] / solution[i][i];
+            double  *irow = solution[i],
+                    *jrow = solution[j];
             int i;
-            for(i = 0; i < columns-8; i += 8)
+
+            #pragma omp simd
+            for(i = 0; i < columns-4; i += 4)
             {
-                jrow[i] -= irow[i] * multiplyBy;
-                jrow[i+1] -= irow[i+1] * multiplyBy;
-                jrow[i+2] -= irow[i+2] * multiplyBy;
-                jrow[i+3] -= irow[i+3] * multiplyBy;
-                jrow[i+4] -= irow[i+4] * multiplyBy;
-                jrow[i+5] -= irow[i+5] * multiplyBy;
-                jrow[i+6] -= irow[i+6] * multiplyBy;
-                jrow[i+7] -= irow[i+7] * multiplyBy;
+                jrow[i] = jrow[i] - irow[i] * multiplyBy;
+                jrow[i+1] = jrow[i+1] - irow[i+1] * multiplyBy;
+                jrow[i+2] = jrow[i+2] - irow[i+2] * multiplyBy;
+                jrow[i+3] = jrow[i+3] - irow[i+3] * multiplyBy;
             }
-            for(;i < columns; ++i)
-                jrow[i] -= irow[i] * multiplyBy;
+
+            #pragma omp simd
+            for(i = columns-4; i < columns; ++i)
+                jrow[i] = jrow[i] - irow[i] * multiplyBy;
         }
     }
     return solution;
@@ -127,20 +127,7 @@ double** solveGauss(double** matrix, int rows, int columns)
  */
 void sub_vector_from_vector2(double* vector1, double* vector2, int vectorSize, double multiplyBy)
 {
-    /*for(int i = 0; i < vectorSize; ++i)
-        vector1[i] = vector1[i] - vector2[i] * multiplyBy;*/
-    int i;
-    for(i = 0; i < vectorSize-8; i += 8)
-    {
-        vector1[i] -= vector2[i] * multiplyBy;
-        vector1[i+1] -= vector2[i+1] * multiplyBy;
-        vector1[i+2] -= vector2[i+2] * multiplyBy;
-        vector1[i+3] -= vector2[i+3] * multiplyBy;
-        vector1[i+4] -= vector2[i+4] * multiplyBy;
-        vector1[i+5] -= vector2[i+5] * multiplyBy;
-        vector1[i+6] -= vector2[i+6] * multiplyBy;
-        vector1[i+7] -= vector2[i+7] * multiplyBy;
-    }
-    for(;i < vectorSize; ++i)
-        vector1[i] -= vector2[i] * multiplyBy;
+    #pragma omp simd
+    for(int i = 0; i < vectorSize; ++i)
+        vector1[i] = vector1[i] - vector2[i] * multiplyBy;
 }
