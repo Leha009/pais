@@ -1,6 +1,10 @@
 #include <iostream>
 #include <ctime>
 #include <chrono>
+#include <omp.h>
+#include <immintrin.h>
+
+#define THREAD_NUM 12
 
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)
@@ -14,28 +18,10 @@
 #define RAND_LEFT -1000
 #define RAND_RIGHT 1000
 
-double randomdouble()
-{
-    return (double)(rand()) / (double)(rand());
-}
-
 int randomInt(int left, int right)
 {
     return rand() % (right - left + 1) + left;
 }
-
-void output_matrix(double** matrix, int rows, int columns)
-{
-    for(int i = 0; i < rows; ++i)
-    {
-        for(int j = 0; j < columns; ++j)
-        {
-            std::cout << matrix[i][j] << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-
 
 double** solveGauss(double** matrix, int rows, int columns);
 void sub_vector_from_vector2(double* vector1, double* vector2, int vectorSize, double multiplyBy);
@@ -43,7 +29,6 @@ void swap_matrix_rows(double** matrix, int row1, int row2);
 
 int main()
 {
-    //std::srand(time(NULL));
     std::srand(61771);
     double** fMatrix = new double*[ROWS_NUM];
     if(fMatrix == NULL)
@@ -70,6 +55,7 @@ int main()
     for(int i = 0; i < ROWS_NUM; ++i)
         for(int j = 0; j < COLUMNS_NUM; ++j)
             fMatrix[i][j] = (double)randomInt(RAND_LEFT, RAND_RIGHT);
+
     //=========================== SOLVE SYSTEM ==========================//
     for(int i = 0; i < WARMUP_NUM; ++i)
         solveGauss(fMatrix, ROWS_NUM, COLUMNS_NUM);
@@ -102,6 +88,7 @@ int main()
 double** solveGauss(double** matrix, int rows, int columns)
 {
     double** solution = new double*[rows];
+    #pragma omp parallel for num_threads(THREAD_NUM)
     for(int i = 0; i < rows; ++i)           // copy origin matrix
     {
         solution[i] = new double[columns];
@@ -114,27 +101,62 @@ double** solveGauss(double** matrix, int rows, int columns)
     while(row < rows-1 && column < columns-1)
     {
         firstZero = false;
-        if(solution[row][column] == 0.0) // если на диагонали ноль - надо менять
-        //if(unlikely(solution[row][column] == 0.0)) // если на диагонали ноль - надо менять
+        if(unlikely(solution[row][column] == 0.0)) // если на диагонали ноль - надо менять
         {
             firstZero = true;
             for(int j = row+1; firstZero && j < rows; ++j)
                 if(solution[j][column] != 0.0)
                 {
-                    swap_matrix_rows(solution, row, j);
+                    double* temp = matrix[j];
+                    matrix[j] = matrix[row];
+                    matrix[row] = temp;
                     firstZero = false;
                 }
 
-            if(firstZero)
-            //if(unlikely(firstZero))
+            if(unlikely(firstZero))
             {
                 ++column;
                 continue;
             }
         }
 
+        #pragma omp parallel for num_threads(THREAD_NUM)
         for(int j = row+1; j < rows; ++j) // проходим по всем строкам ниже
-            sub_vector_from_vector2(solution[j], solution[row], columns, (solution[j][column]/solution[row][column]));
+        {
+            double *irow = solution[row],
+                   *jrow = solution[j];
+            double multiplyBy = (jrow[column]/irow[column]);
+            /*int i;
+            #pragma omp simd
+            for(i = 0; i < columns-8; i += 8)
+            {
+                jrow[i] -= irow[i] * multiplyBy;
+                jrow[i+1] -= irow[i+1] * multiplyBy;
+                jrow[i+2] -= irow[i+2] * multiplyBy;
+                jrow[i+3] -= irow[i+3] * multiplyBy;
+                jrow[i+4] -= irow[i+4] * multiplyBy;
+                jrow[i+5] -= irow[i+5] * multiplyBy;
+                jrow[i+6] -= irow[i+6] * multiplyBy;
+                jrow[i+7] -= irow[i+7] * multiplyBy;
+            }
+            for(;i < columns; ++i)
+                jrow[i] -= irow[i] * multiplyBy;*/
+            __m256d t1, t2, 
+                    toMul = _mm256_setr_pd(multiplyBy, multiplyBy, multiplyBy, multiplyBy);
+            for(int j = 0; j < columns-5; j += 4)
+            {
+                t1 = _mm256_loadu_pd(&irow[i]);
+                t1 = _mm256_mul_pd(t1, toMul);
+                t2 = _mm256_loadu_pd(&jrow[j]);
+                t2 = _mm256_sub_pd(t2, t1);
+                jrow[i] = t2[0];
+                jrow[i+1] = t2[1];
+                jrow[i+2] = t2[2];
+                jrow[i+3] = t2[3];
+            }
+            for(int j = std::max(columns-5, 0); j < columns; ++j)
+                jrow[i] -= irow[i] * multiplyBy;
+        }
         ++row;
     }
     return solution;
@@ -145,24 +167,22 @@ double** solveGauss(double** matrix, int rows, int columns)
  */
 void sub_vector_from_vector2(double* vector1, double* vector2, int vectorSize, double multiplyBy)
 {
-    #pragma omp simd
-    for(int i = 0; i < vectorSize; ++i)
-        vector1[i] = vector1[i] - vector2[i] * multiplyBy;
-    /*int i;
-    #pragma omp simd
+    /*for(int i = 0; i < vectorSize; ++i)
+        vector1[i] = vector1[i] - vector2[i] * multiplyBy;*/
+    int i;
     for(i = 0; i < vectorSize-8; i += 8)
     {
-        vector1[i] = vector1[i] - vector2[i] * multiplyBy;
-        vector1[i+1] = vector1[i+1] - vector2[i+1] * multiplyBy;
-        vector1[i+2] = vector1[i+2] - vector2[i+2] * multiplyBy;
-        vector1[i+3] = vector1[i+3] - vector2[i+3] * multiplyBy;
-        vector1[i+4] = vector1[i+4] - vector2[i+4] * multiplyBy;
-        vector1[i+5] = vector1[i+5] - vector2[i+5] * multiplyBy;
-        vector1[i+6] = vector1[i+6] - vector2[i+6] * multiplyBy;
-        vector1[i+7] = vector1[i+7] - vector2[i+7] * multiplyBy;
+        vector1[i] -= vector2[i] * multiplyBy;
+        vector1[i+1] -= vector2[i+1] * multiplyBy;
+        vector1[i+2] -= vector2[i+2] * multiplyBy;
+        vector1[i+3] -= vector2[i+3] * multiplyBy;
+        vector1[i+4] -= vector2[i+4] * multiplyBy;
+        vector1[i+5] -= vector2[i+5] * multiplyBy;
+        vector1[i+6] -= vector2[i+6] * multiplyBy;
+        vector1[i+7] -= vector2[i+7] * multiplyBy;
     }
     for(;i < vectorSize; ++i)
-        vector1[i] = vector1[i] - vector2[i] * multiplyBy;*/
+        vector1[i] -= vector2[i] * multiplyBy;
 }
 
 void swap_matrix_rows(double** matrix, int row1, int row2)

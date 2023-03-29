@@ -1,0 +1,65 @@
+#define WARMUP_NUM 10
+#define MEASURE_NUM 1000
+
+#define M_ROWS 700
+#define M_COLUMNS_V_ROWS 500
+
+#define RAND_LEFT -1000
+#define RAND_RIGHT 1000
+
+std::srand(61771);
+
+g++ naive.cpp -O0
+clang++ -target x86_64-pc-windows-gnu naive.cpp -O0
+naive.cpp:
+    просто цикл в цикле, ничего интересного
+    результат: 0.680359 seconds
+    langрезультат: 0.677439 seconds
+    
+g++ openmp.cpp -O0 -fopenmp
+clang++ -target x86_64-pc-windows-gnu openmp.cpp -O0 -fopenmp
+openmp.cpp:
+    OpenMP
+    если 4 потока поставить на j цикл: 0.539225 seconds
+    langрезультат: 
+    
+    если все только на i: 0.127506 seconds
+    langрезультат: 
+    
+g++ openmp_1d.cpp -O0 -fopenmp
+clang++ -target x86_64-pc-windows-gnu openmp_1d.cpp -O0 -lpthread 
+openmp_1d.cpp:
+    матрица как 1d массив + OpenMP
+    если 4 потока поставить на j цикл: 0.539225 seconds
+    langрезультат: 
+    
+    если все только на i: 0.126345 seconds
+    langрезультат: 
+    
+g++ no_func.cpp -O0
+clang++ -target x86_64-pc-windows-gnu no_func.cpp -O0
+no_func.cpp:
+    no functions
+    результат: 0.710736 seconds НЕ СЧИТАЕТСЯ
+    langрезультат: 
+    
+g++ openmp_no_func.cpp -O0 -fopenmp
+clang++ -target x86_64-pc-windows-gnu openmp_no_func.cpp -O0 -lpthread
+openmp_no_func.cpp:
+    без функции + OpenMP
+    результат: 
+    langрезультат: 
+    
+g++ openmp_vectr.cpp -O0 -fopenmp
+clang++ -target x86_64-pc-windows-gnu openmp_vectr.cpp -O0 -lpthread
+openmp_vectr.cpp:
+    OpenMP векторизация
+    результат: 0.128109 seconds
+    langрезультат: 
+    
+g++ openmp_native_vectr.cpp -O0 -fopenmp -mavx2
+clang++ -target x86_64-pc-windows-gnu openmp_native_vectr.cpp -O0 -lpthread -mavx2
+openmp_native_vectr.cpp:
+    OpenMP + mavx2 векторизация
+    результат: 0.081759 seconds НЕ СЧИТАЕТСЯ
+    langрезультат: 
