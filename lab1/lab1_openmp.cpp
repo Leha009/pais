@@ -63,7 +63,7 @@ int main()
             for(int j = 0; j < i; ++j)
                 delete fMatrix[j];
 
-            delete fMatrix;
+            delete [] fMatrix;
 
             std::cout << "Failed to allocate memory for row " << i << " in matrix!" << std::endl;
             return 0;
@@ -90,7 +90,7 @@ int main()
     for(int i = 0; i < ROWS_NUM; ++i)
         delete fMatrix[i];
 
-    delete fMatrix;
+    delete [] fMatrix;
     return 0;
 }
 
@@ -151,7 +151,7 @@ double** solveGauss(double** matrix, int rows, int columns)
 void sub_vector_from_vector2(double* vector1, double* vector2, int vectorSize, double multiplyBy)
 {
     for(int i = 0; i < vectorSize; ++i)
-    vector1[i] = vector1[i] - vector2[i] * multiplyBy;
+        vector1[i] = vector1[i] - vector2[i] * multiplyBy;
     /*int i;
     for(i = 0; i < vectorSize-8; i += 8)
     {
