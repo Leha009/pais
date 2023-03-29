@@ -9,57 +9,51 @@
 
 std::srand(61771);
 
-gcc naive.c -O0
-clang++ -target x86_64-pc-windows-gnu naive.cpp -O0 -fopenmp
+g++ naive.cpp -O0
+clang++ naive.cpp -O0
 naive.cpp:
     просто цикл в цикле, ничего интересного
-    результат: 0.685000 seconds
-    langрезультат: 
+    результат: 0.649109 seconds
+    langрезультат: 0.637477 seconds
     
-gcc openmp.c -O0 -fopenmp
-clang -target x86_64-pc-windows-gnu openmp.c -O0 -fopenmp
+g++ openmp.cpp -O0 -fopenmp
+clang++ openmp.cpp -O0 -fopenmp
 openmp.cpp:
     OpenMP
-    если 4 потока поставить на j цикл: 0.540000 seconds
-    langрезультат: 
-    
-    если все только на i: 0.127000 seconds
-    langрезультат: 
+    результат: 0.120439 seconds
+    langрезультат: 0.120782 seconds
     
 g++ openmp_1d.cpp -O0 -fopenmp
-clang++ -target x86_64-pc-windows-gnu openmp_1d.cpp -O0 -lpthread 
+clang++ openmp_1d.cpp -O0 -fopenmp 
 openmp_1d.cpp:
     матрица как 1d массив + OpenMP
-    если 4 потока поставить на j цикл: 
-    langрезультат: 
-    
-    если все только на i: 
-    langрезультат: 
+    результат: 0.120736 seconds
+    langрезультат: 0.125856 seconds
     
 g++ no_func.cpp -O0
-clang++ -target x86_64-pc-windows-gnu no_func.cpp -O0
+clang++ no_func.cpp -O0
 no_func.cpp:
     no functions
-    результат: 
-    langрезультат: 
+    результат: 0.664025 seconds
+    langрезультат: 0.637468 seconds
     
 g++ openmp_no_func.cpp -O0 -fopenmp
-clang++ -target x86_64-pc-windows-gnu openmp_no_func.cpp -O0 -lpthread
+clang++ openmp_no_func.cpp -O0 -fopenmp
 openmp_no_func.cpp:
     без функции + OpenMP
-    результат: 
-    langрезультат: 
+    результат: 0.11789 seconds
+    langрезультат: 0.115037 seconds
     
 g++ openmp_vectr.cpp -O0 -fopenmp
-clang++ -target x86_64-pc-windows-gnu openmp_vectr.cpp -O0 -lpthread
+clang++ openmp_vectr.cpp -O0 -fopenmp
 openmp_vectr.cpp:
     OpenMP векторизация
-    результат: 
-    langрезультат: 
+    результат: 0.109875 seconds
+    langрезультат: 0.123346 seconds
     
 g++ openmp_native_vectr.cpp -O0 -fopenmp -mavx2
-clang++ -target x86_64-pc-windows-gnu openmp_native_vectr.cpp -O0 -lpthread -mavx2
+clang++ openmp_native_vectr.cpp -O0 -fopenmp -mavx2
 openmp_native_vectr.cpp:
     OpenMP + mavx2 векторизация
-    результат: 
-    langрезультат: 
+    результат: 0.075755 seconds
+    langрезультат: 0.101982 seconds

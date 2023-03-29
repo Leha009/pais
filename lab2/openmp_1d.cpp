@@ -7,8 +7,8 @@
 #define WARMUP_NUM 10
 #define MEASURE_NUM 1000
 
-#define M_ROWS 4096
-#define M_COLUMNS_V_ROWS 4096
+#define M_ROWS 700
+#define M_COLUMNS_V_ROWS 500
 
 #define RAND_LEFT -1000
 #define RAND_RIGHT 1000

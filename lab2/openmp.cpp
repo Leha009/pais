@@ -46,8 +46,8 @@ void output_vector(double* vector, int columns)
 int main()
 {
     std::srand(61771);
-    double** matrix = malloc(sizeof(double*)*M_ROWS);//new double*[M_ROWS];
-    double* vector = malloc(sizeof(double)*M_COLUMNS_V_ROWS);//new double[M_COLUMNS_V_ROWS];
+    double** matrix = new double*[M_ROWS];
+    double* vector = new double[M_COLUMNS_V_ROWS];
 
     for(int i = 0; i < M_ROWS; ++i)
     {
