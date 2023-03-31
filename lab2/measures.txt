@@ -14,60 +14,60 @@ clang++ naive.cpp -O0
 naive.cpp:
     просто цикл в цикле, ничего интересного
     результат: 0.649109 seconds
-    instructions: 12 426 224 058
+    instructions: 12 426 224 058
     langрезультат: 0.637477 seconds
-    instructions: 7 477 459 452
+    instructions: 7 477 459 452
     
 g++ openmp.cpp -O0 -fopenmp
 clang++ openmp.cpp -O0 -fopenmp
 openmp.cpp:
     OpenMP
     результат: 0.120439 seconds
-    instructions: 12 806 544 442
+    instructions: 12 806 544 442
     langрезультат: 0.120782 seconds
-    instructions: 9 085 993 769
+    instructions: 9 085 993 769
     
 g++ openmp_1d.cpp -O0 -fopenmp
 clang++ openmp_1d.cpp -O0 -fopenmp 
 openmp_1d.cpp:
     матрица как 1d массив + OpenMP
     результат: 0.120736 seconds
-    instructions: 12 451 757 627
+    instructions: 12 451 757 627
     langрезультат: 0.125856 seconds
-    instructions:  9 896 290 372
+    instructions:  9 896 290 372
     
 g++ no_func.cpp -O0
 clang++ no_func.cpp -O0
 no_func.cpp:
     no functions
     результат: 0.664025 seconds
-    instructions: 12 071 488 924
+    instructions: 12 071 488 924
     langрезультат: 0.637468 seconds
-    instructions: 7 122 339 459
+    instructions: 7 122 339 459
     
 g++ openmp_no_func.cpp -O0 -fopenmp
 clang++ openmp_no_func.cpp -O0 -fopenmp
 openmp_no_func.cpp:
     без функции + OpenMP
     результат: 0.11789 seconds
-    instructions: 12 448 157 725
+    instructions: 12 448 157 725
     langрезультат: 0.115037 seconds
-    instructions: 8 405 152 802
+    instructions: 8 405 152 802
     
 g++ openmp_vectr.cpp -O0 -fopenmp
 clang++ openmp_vectr.cpp -O0 -fopenmp
 openmp_vectr.cpp:
     OpenMP векторизация
     результат: 0.109875 seconds
-    instructions: 12 451 782 020
+    instructions: 12 451 782 020
     langрезультат: 0.123346 seconds
-    instructions: 11 256 350 614
+    instructions: 11 256 350 614
     
 g++ openmp_native_vectr.cpp -O0 -fopenmp -mavx2
 clang++ openmp_native_vectr.cpp -O0 -fopenmp -mavx2
 openmp_native_vectr.cpp:
     OpenMP + mavx2 векторизация
     результат: 0.060152 seconds
-    instructions: 5 158 741 244
+    instructions: 5 158 741 244
     langрезультат: 0.082163 seconds
-    instructions: 5 376 077 094
+    instructions: 5 376 077 094
