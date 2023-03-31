@@ -145,9 +145,9 @@ double** solveGauss(double** matrix, int rows, int columns)
  */
 void sub_vector_from_vector2(double* vector1, double* vector2, int vectorSize, double multiplyBy)
 {
-    /*for(int i = 0; i < vectorSize; ++i)
-        vector1[i] = vector1[i] - vector2[i] * multiplyBy;*/
-    int i;
+    for(int i = 0; i < vectorSize; ++i)
+        vector1[i] = vector1[i] - vector2[i] * multiplyBy;
+    /*int i;
     for(i = 0; i < vectorSize-8; i += 8)
     {
         vector1[i] = vector1[i] - vector2[i] * multiplyBy;
@@ -160,7 +160,7 @@ void sub_vector_from_vector2(double* vector1, double* vector2, int vectorSize, d
         vector1[i+7] = vector1[i+7] - vector2[i+7] * multiplyBy;
     }
     for(;i < vectorSize; ++i)
-        vector1[i] = vector1[i] - vector2[i] * multiplyBy;
+        vector1[i] = vector1[i] - vector2[i] * multiplyBy;*/
 }
 
 void swap_matrix_rows(double** matrix, int row1, int row2)

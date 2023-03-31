@@ -118,8 +118,8 @@ double** solveGauss(double** matrix, int rows, int columns)
     while(row < rows-1 && column < columns-1)
     {
         firstZero = false;
-        if(solution[row][column] == 0.0) // если на диагонали ноль - надо менять
-        //if(unlikely(solution[row][column] == 0.0)) // если на диагонали ноль - надо менять
+        //if(solution[row][column] == 0.0) // если на диагонали ноль - надо менять
+        if(unlikely(solution[row][column] == 0.0)) // если на диагонали ноль - надо менять
         {
             firstZero = true;
             for(int j = row+1; firstZero && j < rows; ++j)
@@ -129,8 +129,8 @@ double** solveGauss(double** matrix, int rows, int columns)
                     firstZero = false;
                 }
 
-            if(firstZero)
-            //if(unlikely(firstZero))
+            //if(firstZero)
+            if(unlikely(firstZero))
             {
                 ++column;
                 continue;
@@ -150,9 +150,9 @@ double** solveGauss(double** matrix, int rows, int columns)
  */
 void sub_vector_from_vector2(double* vector1, double* vector2, int vectorSize, double multiplyBy)
 {
-    for(int i = 0; i < vectorSize; ++i)
-        vector1[i] = vector1[i] - vector2[i] * multiplyBy;
-    /*int i;
+    /*for(int i = 0; i < vectorSize; ++i)
+        vector1[i] = vector1[i] - vector2[i] * multiplyBy;*/
+    int i;
     for(i = 0; i < vectorSize-8; i += 8)
     {
         vector1[i] = vector1[i] - vector2[i] * multiplyBy;
@@ -165,7 +165,7 @@ void sub_vector_from_vector2(double* vector1, double* vector2, int vectorSize, d
         vector1[i+7] = vector1[i+7] - vector2[i+7] * multiplyBy;
     }
     for(;i < vectorSize; ++i)
-        vector1[i] = vector1[i] - vector2[i] * multiplyBy;*/
+        vector1[i] = vector1[i] - vector2[i] * multiplyBy;
 }
 
 void swap_matrix_rows(double** matrix, int row1, int row2)

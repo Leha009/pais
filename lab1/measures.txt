@@ -9,65 +9,72 @@
 
 std::srand(61771);
 
+perf stat ./a_out
+
 g++ lab1.cpp -O0
 clang++ lab1.cpp -O0
 lab1.cpp:
     используются дин. массивы даблов
     без проверки unlikely на 0: 13.3109 seconds
+    instructions: 326 305 306 192
     clang: 13.5008 seconds
+    instructions: 311 897 300 646
 
     с проверкой на 0 unlikely: 13.3613 seconds
+    instructions: 326 308 389 760
     clang: 13.4933 seconds
+    instructions: 311 901 475 696
 
     + сделать в циклах изменения сразу 8 значений: 12.4306 seconds
+    instructions: 316 425 869 689
     clang: 12.7807 seconds
+    instructions: 303 716 120 353
     
 g++ lab1_openmp.cpp -O0 -fopenmp
 clang++ lab1_openmp.cpp -O0 -fopenmp
 lab1_openmp.cpp:
     используются дин. массивы даблов + OpenMP
     без проверки unlikely на 0: 2.92586 seconds
+    instructions: 327 934 736 578
     clang: 3.05689 seconds
+    instructions: 335 389 870 897
 
     с проверкой на 0 unlikely: 2.90284 seconds
+    instructions: 327 777 599 865
     clang: 2.84331 seconds
+    instructions: 334 392 019 305
 
     + сделать в циклах изменения сразу 8 значений: 2.55635 seconds
+    instructions: 317 622 784 880
     clang: 2.66892 seconds
-        
-g++ lab1_vctz.cpp -O0
-clang++ lab1_vctz.cpp -O0
-lab1_vctz.cpp:
-    используются дин. массивы даблов + векторизация OpenMP
-    без проверки unlikely на 0: 13.2784 seconds
-    clang: 13.3805 seconds
-
-    с проверкой на 0 unlikely: 13.5893 seconds
-    clang: 13.6394 seconds
-
-    + сделать в циклах изменения сразу 4 значений: 12.452 seconds
-    clang: 12.7251 seconds
+    instructions: 324 272 625 344
 
 g++ lab1_vctz_openmp.cpp -O0 -fopenmp
 clang++ lab1_vctz_openmp.cpp -O0 -fopenmp
 lab1_vctz_openmp.cpp:
-    используются дин. массивы даблов + OpenMP + векторизация в вычитании векторов
+    используются дин. массивы даблов + OpenMP + векторизация OpenMP в вычитании векторов
     + сделать в циклах изменения сразу 8 значений: 2.5165 seconds
+    instructions: 314 534 748 581
     clang: 2.64615 seconds
+    instructions: 333 011 155 919
         
 g++ no_func.cpp -O0 -fopenmp
 clang++ no_func.cpp -O0 -fopenmp
 no_func.cpp:
     используются дин. массивы даблов + OpenMP + нет функции
     с проверкой на 0 unlikely + сделать в циклах изменения сразу 8 значений: 2.27947 seconds
+    instructions: 318 478 054 980
     clang: 2.15132 seconds
+    instructions: 267 462 921 635
         
 g++ vctz_no_func.cpp -O0 -fopenmp
 clang++ vctz_no_func.cpp -O0 -fopenmp
 vctz_no_func.cpp:
     используются дин. массивы даблов + OpenMP + нет функции + векторизация OpenMP
     с проверкой на 0 unlikely + сделать в циклах изменения сразу 8 значений: 2.28031 seconds
+    instructions: 315 278 568 877
     clang: 2.17637 seconds
+    instructions: 275 148 538 411
 
         //========================= double векторы из STL =========================\\
 По первым тестам он показал себя очень не очень, поэтому работаем только с даблами
